@@ -80,12 +80,12 @@ class LeastDurationAlgorithm(AlgorithmBase):
         heapq.heapify(heap)
 
         item_count = 0
+        print("\n")
         for item, item_duration, original_index in sorted_items_with_durations:
             # get group with smallest sum
             summed_durations, group_idx = heapq.heappop(heap)
             new_group_durations = summed_durations + item_duration
-            if item_count < 100:
-                print(f"Adding test {item.nodeid} (pytest index {original_index}, {item_duration}) to test group {group_idx}")
+            print(f"Adding test {item.nodeid} (pytest index {original_index}, {item_duration}) to test group {group_idx}")
             item_count += 1
 
             # store assignment
