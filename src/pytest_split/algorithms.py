@@ -63,7 +63,7 @@ class LeastDurationAlgorithm(AlgorithmBase):
 
         # Sort by name to ensure it's always the same order
         items_with_durations_indexed = sorted(
-            items_with_durations_indexed, key=lambda tup: str(tup[0])
+            items_with_durations_indexed, key=lambda tup: tup[0].nodeid
         )
 
         # sort in ascending order
@@ -78,10 +78,15 @@ class LeastDurationAlgorithm(AlgorithmBase):
         # create a heap of the form (summed_durations, group_index)
         heap: List[Tuple[float, int]] = [(0, i) for i in range(splits)]
         heapq.heapify(heap)
+
+        item_count = 0
         for item, item_duration, original_index in sorted_items_with_durations:
             # get group with smallest sum
             summed_durations, group_idx = heapq.heappop(heap)
             new_group_durations = summed_durations + item_duration
+            if item_count < 100:
+                print(f"Adding test {item.nodeid} (pytest index {original_index}, {item_duration}) to test group {group_idx}")
+            item_count += 1
 
             # store assignment
             selected[group_idx].append((item, original_index))
@@ -92,6 +97,7 @@ class LeastDurationAlgorithm(AlgorithmBase):
 
             # store new duration - in case of ties it sorts by the group_idx
             heapq.heappush(heap, (new_group_durations, group_idx))
+        print(f"{item_count} total tests")
 
         groups = []
         for i in range(splits):
@@ -101,6 +107,9 @@ class LeastDurationAlgorithm(AlgorithmBase):
                 item
                 for item, original_index in sorted(selected[i], key=lambda tup: tup[1])
             ]
+            print("selected:")
+            for item in s[:100]:
+                print(item.nodeid)
             group = TestGroup(
                 selected=s, deselected=deselected[i], duration=duration[i]
             )
